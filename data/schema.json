@@ -1,0 +1,130 @@
+{
+  "database": "COCO_FINANCIAL",
+  "schema": "FRAUD_ANALYTICS",
+  "tables": [
+    {
+      "name": "CUSTOMERS",
+      "description": "Primary customer information table containing demographic and risk data",
+      "columns": [
+        {"name": "CUSTOMER_ID", "type": "VARCHAR(36)", "nullable": false, "primary_key": true, "description": "Unique customer identifier (UUID)"},
+        {"name": "CUSTOMER_NAME", "type": "VARCHAR(100)", "nullable": false, "description": "Full customer name"},
+        {"name": "EMAIL", "type": "VARCHAR(255)", "nullable": true, "description": "Email address"},
+        {"name": "PHONE", "type": "VARCHAR(50)", "nullable": true, "description": "Phone number"},
+        {"name": "ADDRESS", "type": "VARCHAR(255)", "nullable": true, "description": "Street address"},
+        {"name": "CITY", "type": "VARCHAR(100)", "nullable": true, "description": "City"},
+        {"name": "STATE", "type": "VARCHAR(50)", "nullable": true, "description": "State or province"},
+        {"name": "POSTAL_CODE", "type": "VARCHAR(20)", "nullable": true, "description": "ZIP or postal code"},
+        {"name": "COUNTRY", "type": "VARCHAR(50)", "nullable": true, "default": "USA", "description": "Country"},
+        {"name": "DATE_OF_BIRTH", "type": "DATE", "nullable": true, "description": "Date of birth"},
+        {"name": "CREATED_AT", "type": "TIMESTAMP_NTZ", "nullable": false, "default": "CURRENT_TIMESTAMP()", "description": "Account creation timestamp"},
+        {"name": "CUSTOMER_SEGMENT", "type": "VARCHAR(20)", "nullable": true, "description": "Customer segment: Premium, Standard, Basic"},
+        {"name": "RISK_SCORE", "type": "DECIMAL(10,2)", "nullable": true, "default": "0", "description": "Risk score from 0 to 100"},
+        {"name": "IS_ACTIVE", "type": "BOOLEAN", "nullable": false, "default": "TRUE", "description": "Active customer flag"}
+      ]
+    },
+    {
+      "name": "ACCOUNTS",
+      "description": "Financial accounts linked to customers",
+      "columns": [
+        {"name": "ACCOUNT_ID", "type": "VARCHAR(36)", "nullable": false, "primary_key": true, "description": "Unique account identifier (UUID)"},
+        {"name": "CUSTOMER_ID", "type": "VARCHAR(36)", "nullable": false, "foreign_key": {"table": "CUSTOMERS", "column": "CUSTOMER_ID"}, "description": "Reference to customer"},
+        {"name": "ACCOUNT_TYPE", "type": "VARCHAR(20)", "nullable": false, "description": "Account type: Checking, Savings, Credit, Investment"},
+        {"name": "ACCOUNT_NUMBER", "type": "VARCHAR(20)", "nullable": false, "description": "Masked account number"},
+        {"name": "CURRENCY", "type": "VARCHAR(10)", "nullable": false, "default": "'USD'", "description": "Currency code"},
+        {"name": "BALANCE", "type": "DECIMAL(15,2)", "nullable": false, "default": "0", "description": "Current balance"},
+        {"name": "CREDIT_LIMIT", "type": "DECIMAL(15,2)", "nullable": true, "description": "Credit limit for credit accounts"},
+        {"name": "OPENED_DATE", "type": "TIMESTAMP_NTZ", "nullable": false, "default": "CURRENT_TIMESTAMP()", "description": "Account opening date"},
+        {"name": "STATUS", "type": "VARCHAR(20)", "nullable": false, "default": "'Active'", "description": "Status: Active, Suspended, Closed"},
+        {"name": "IS_PRIMARY", "type": "BOOLEAN", "nullable": false, "default": "FALSE", "description": "Primary account flag"}
+      ]
+    },
+    {
+      "name": "MERCHANTS",
+      "description": "Merchant and vendor information",
+      "columns": [
+        {"name": "MERCHANT_ID", "type": "VARCHAR(36)", "nullable": false, "primary_key": true, "description": "Unique merchant identifier (UUID)"},
+        {"name": "MERCHANT_NAME", "type": "VARCHAR(100)", "nullable": false, "description": "Business name"},
+        {"name": "CATEGORY", "type": "VARCHAR(50)", "nullable": true, "description": "Business category"},
+        {"name": "MCC_CODE", "type": "VARCHAR(20)", "nullable": true, "description": "Merchant Category Code"},
+        {"name": "CITY", "type": "VARCHAR(100)", "nullable": true, "description": "City"},
+        {"name": "COUNTRY", "type": "VARCHAR(50)", "nullable": true, "default": "'USA'", "description": "Country"},
+        {"name": "RISK_RATING", "type": "DECIMAL(5,2)", "nullable": true, "default": "1.0", "description": "Risk rating from 1 to 5"},
+        {"name": "IS_VERIFIED", "type": "BOOLEAN", "nullable": false, "default": "FALSE", "description": "Verification status"},
+        {"name": "REGISTERED_DATE", "type": "TIMESTAMP_NTZ", "nullable": false, "default": "CURRENT_TIMESTAMP()", "description": "Registration date"}
+      ]
+    },
+    {
+      "name": "TRANSACTIONS",
+      "description": "Individual financial transactions",
+      "columns": [
+        {"name": "TRANSACTION_ID", "type": "VARCHAR(36)", "nullable": false, "primary_key": true, "description": "Unique transaction identifier (UUID)"},
+        {"name": "ACCOUNT_ID", "type": "VARCHAR(36)", "nullable": false, "foreign_key": {"table": "ACCOUNTS", "column": "ACCOUNT_ID"}, "description": "Reference to account"},
+        {"name": "MERCHANT_ID", "type": "VARCHAR(36)", "nullable": true, "foreign_key": {"table": "MERCHANTS", "column": "MERCHANT_ID"}, "description": "Reference to merchant"},
+        {"name": "TRANSACTION_TIMESTAMP", "type": "TIMESTAMP_NTZ", "nullable": false, "description": "Transaction date and time"},
+        {"name": "AMOUNT", "type": "DECIMAL(12,2)", "nullable": false, "description": "Transaction amount"},
+        {"name": "CURRENCY", "type": "VARCHAR(10)", "nullable": false, "default": "'USD'", "description": "Currency code"},
+        {"name": "TRANSACTION_TYPE", "type": "VARCHAR(30)", "nullable": false, "description": "Type: Purchase, Withdrawal, Transfer, Refund, Payment"},
+        {"name": "CHANNEL", "type": "VARCHAR(20)", "nullable": true, "description": "Channel: Online, POS, ATM, Mobile, Branch"},
+        {"name": "DESCRIPTION", "type": "VARCHAR(100)", "nullable": true, "description": "Transaction description"},
+        {"name": "LOCATION_CITY", "type": "VARCHAR(50)", "nullable": true, "description": "Transaction city"},
+        {"name": "LOCATION_COUNTRY", "type": "VARCHAR(50)", "nullable": true, "description": "Transaction country"},
+        {"name": "LATITUDE", "type": "DECIMAL(10,6)", "nullable": true, "description": "GPS latitude"},
+        {"name": "LONGITUDE", "type": "DECIMAL(10,6)", "nullable": true, "description": "GPS longitude"},
+        {"name": "DEVICE_TYPE", "type": "VARCHAR(20)", "nullable": true, "description": "Device: Desktop, Mobile, Tablet, ATM, POS"},
+        {"name": "IP_ADDRESS", "type": "VARCHAR(50)", "nullable": true, "description": "IP address for online transactions"},
+        {"name": "STATUS", "type": "VARCHAR(20)", "nullable": false, "default": "'Completed'", "description": "Status: Completed, Pending, Failed, Reversed"},
+        {"name": "REFERENCE_ID", "type": "VARCHAR(36)", "nullable": true, "description": "External reference ID"}
+      ]
+    },
+    {
+      "name": "FRAUD_LABELS",
+      "description": "Fraud classification labels for transactions",
+      "columns": [
+        {"name": "LABEL_ID", "type": "VARCHAR(36)", "nullable": false, "primary_key": true, "description": "Unique label identifier (UUID)"},
+        {"name": "TRANSACTION_ID", "type": "VARCHAR(36)", "nullable": false, "foreign_key": {"table": "TRANSACTIONS", "column": "TRANSACTION_ID"}, "description": "Reference to transaction"},
+        {"name": "IS_FRAUD", "type": "BOOLEAN", "nullable": false, "default": "FALSE", "description": "Fraud indicator"},
+        {"name": "FRAUD_TYPE", "type": "VARCHAR(50)", "nullable": true, "description": "Type: Card_Not_Present, Identity_Theft, Account_Takeover, Friendly_Fraud"},
+        {"name": "CONFIDENCE_SCORE", "type": "DECIMAL(5,2)", "nullable": true, "description": "Model confidence score 0 to 1"},
+        {"name": "DETECTION_METHOD", "type": "VARCHAR(50)", "nullable": true, "description": "Method: ML_Model, Rule_Based, Manual_Review, Customer_Report"},
+        {"name": "LABELED_AT", "type": "TIMESTAMP_NTZ", "nullable": false, "default": "CURRENT_TIMESTAMP()", "description": "Label timestamp"},
+        {"name": "LABELED_BY", "type": "VARCHAR(100)", "nullable": true, "description": "Analyst or system name"},
+        {"name": "NOTES", "type": "TEXT", "nullable": true, "description": "Additional notes"}
+      ]
+    },
+    {
+      "name": "ALERTS",
+      "description": "Fraud alerts and their resolution status",
+      "columns": [
+        {"name": "ALERT_ID", "type": "VARCHAR(36)", "nullable": false, "primary_key": true, "description": "Unique alert identifier (UUID)"},
+        {"name": "TRANSACTION_ID", "type": "VARCHAR(36)", "nullable": true, "foreign_key": {"table": "TRANSACTIONS", "column": "TRANSACTION_ID"}, "description": "Reference to transaction"},
+        {"name": "ACCOUNT_ID", "type": "VARCHAR(36)", "nullable": true, "foreign_key": {"table": "ACCOUNTS", "column": "ACCOUNT_ID"}, "description": "Reference to account"},
+        {"name": "CUSTOMER_ID", "type": "VARCHAR(36)", "nullable": true, "foreign_key": {"table": "CUSTOMERS", "column": "CUSTOMER_ID"}, "description": "Reference to customer"},
+        {"name": "ALERT_TIMESTAMP", "type": "TIMESTAMP_NTZ", "nullable": false, "default": "CURRENT_TIMESTAMP()", "description": "Alert creation timestamp"},
+        {"name": "ALERT_TYPE", "type": "VARCHAR(50)", "nullable": false, "description": "Type: Suspicious_Transaction, Velocity_Alert, Geographic_Anomaly, Amount_Anomaly"},
+        {"name": "SEVERITY", "type": "VARCHAR(20)", "nullable": false, "default": "'Medium'", "description": "Severity: Low, Medium, High, Critical"},
+        {"name": "STATUS", "type": "VARCHAR(20)", "nullable": false, "default": "'Open'", "description": "Status: Open, Investigating, Resolved, False_Positive"},
+        {"name": "DESCRIPTION", "type": "TEXT", "nullable": true, "description": "Alert description"},
+        {"name": "RISK_SCORE", "type": "DECIMAL(5,2)", "nullable": true, "description": "Calculated risk score"},
+        {"name": "RESOLVED_AT", "type": "TIMESTAMP_NTZ", "nullable": true, "description": "Resolution timestamp"},
+        {"name": "RESOLVED_BY", "type": "VARCHAR(100)", "nullable": true, "description": "Resolver name"},
+        {"name": "RESOLUTION_NOTES", "type": "TEXT", "nullable": true, "description": "Resolution details"}
+      ]
+    }
+  ],
+  "views": [
+    {
+      "name": "VW_TRANSACTION_SUMMARY",
+      "description": "Aggregated transaction metrics by customer including fraud indicators"
+    },
+    {
+      "name": "VW_FRAUD_METRICS",
+      "description": "Daily fraud metrics for dashboard and reporting"
+    }
+  ],
+  "semantic_views": [
+    {
+      "name": "SV_FRAUD_ANALYTICS",
+      "description": "Semantic view for natural language queries against fraud data"
+    }
+  ]
+}

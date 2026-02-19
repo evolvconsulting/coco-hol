@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>README.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="coco-financial-fraud-analytics---cortex-code-hands-on-lab">CoCo-Financial Fraud Analytics - Cortex Code Hands-on Lab</h1>
+<h2 id="overview">Overview</h2>
+<p>Welcome to the <strong>CoCo-Financial Fraud Analytics</strong> Hands-on Lab! In this lab, you will learn how to use <strong>Cortex Code CLI</strong> to build a complete fraud analytics solution for a fictional financial services company.</p>
+<p><strong>CoCo-Financial</strong> is a mid-sized financial institution that processes millions of transactions daily. They need to detect and prevent fraudulent activities across their customer base. You'll help them by:</p>
+<ol>
+<li>Setting up secure authentication to Snowflake</li>
+<li>Deploying a comprehensive fraud analytics dataset</li>
+<li>Creating semantic views for natural language queries</li>
+<li>Building custom Cortex Code skills for fraud analysis</li>
+</ol>
+<hr>
+<h2 id="learning-objectives">Learning Objectives</h2>
+<p>By the end of this lab, you will be able to:</p>
+<ul>
+<li>Install and configure Cortex Code CLI</li>
+<li>Set up Key-Pair or PAT authentication with Snowflake</li>
+<li>Deploy databases, tables, views, and semantic views using Cortex Code</li>
+<li>Use built-in Cortex Code skills</li>
+<li>Create custom skills for domain-specific workflows</li>
+<li>Query data using natural language through semantic views</li>
+</ul>
+<hr>
+<h2 id="time-estimates">Time Estimates</h2>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>With Pre-work Done</th>
+<th>Without Pre-work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prerequisites</td>
+<td>0 min</td>
+<td>15-20 min</td>
+</tr>
+<tr>
+<td>Module 1: Environment Setup</td>
+<td>5 min</td>
+<td>10 min</td>
+</tr>
+<tr>
+<td>Module 2: Authentication</td>
+<td>10 min</td>
+<td>15 min</td>
+</tr>
+<tr>
+<td>Module 3: Deploy Dataset</td>
+<td>15 min</td>
+<td>15 min</td>
+</tr>
+<tr>
+<td>Module 4: Using Skills</td>
+<td>10 min</td>
+<td>10 min</td>
+</tr>
+<tr>
+<td>Module 5: Build Custom Skill</td>
+<td>15 min</td>
+<td>15 min</td>
+</tr>
+<tr>
+<td>Module 6: Experimentation</td>
+<td>15 min</td>
+<td>15 min</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>~60 min</strong></td>
+<td><strong>~80-90 min</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Before starting this lab, ensure you have the following:</p>
+<h3 id="required">Required</h3>
+<ol>
+<li><strong>Snowflake Account</strong> with permissions to create objects (Database, Schema, Tables)</li>
+<li><strong>Snowflake CLI</strong> (snow) installed</li>
+<li><strong>Cortex Code CLI</strong> (cortex) installed</li>
+<li><strong>macOS (Apple Silicon or Intel)</strong> or <strong>Linux</strong> operating system
+<ul>
+<li>Note: Windows is not currently supported; use WSL if on Windows</li>
+</ul>
+</li>
+</ol>
+<h3 id="quick-prerequisite-check">Quick Prerequisite Check</h3>
+<p>Run the prerequisite check script to verify your environment:</p>
+<pre class="hljs"><code><div><span class="hljs-built_in">cd</span> /path/to/CoCo_HOL
+bash scripts/prereq_check.sh
+</div></code></pre>
+<h3 id="dont-have-a-snowflake-account">Don't Have a Snowflake Account?</h3>
+<p>Sign up for a <strong>free Cortex Code trial</strong> at:</p>
+<p><strong>https://signup.snowflake.com/cortex-code?utm_cta=pushdown-signup</strong></p>
+<p>This provides you with a Snowflake account pre-configured for Cortex Code.</p>
+<h3 id="accelerated-setup-if-prerequisites-not-met">Accelerated Setup (If Prerequisites Not Met)</h3>
+<p>If you don't have the prerequisites installed, run the accelerated setup script:</p>
+<pre class="hljs"><code><div>bash scripts/accelerated_setup.sh
+</div></code></pre>
+<p>This script will:</p>
+<ul>
+<li>Install Snowflake CLI (if not present)</li>
+<li>Install Cortex Code CLI (if not present)</li>
+<li>Guide you through initial configuration</li>
+</ul>
+<hr>
+<h2 id="module-1-environment-setup">Module 1: Environment Setup</h2>
+<h3 id="step-11-verify-prerequisites">Step 1.1: Verify Prerequisites</h3>
+<p>Open a terminal and run:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># Check Snowflake CLI</span>
+snow --version
+
+<span class="hljs-comment"># Check Cortex Code CLI</span>
+cortex --version
+</div></code></pre>
+<p>Expected output should show version numbers for both tools.</p>
+<h3 id="step-12-test-snowflake-connection">Step 1.2: Test Snowflake Connection</h3>
+<p>If you already have a Snowflake connection configured:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># List existing connections</span>
+snow connection list
+
+<span class="hljs-comment"># Test your connection</span>
+snow connection <span class="hljs-built_in">test</span> -c &lt;your_connection_name&gt;
+</div></code></pre>
+<h3 id="step-13-test-object-creation-permissions">Step 1.3: Test Object Creation Permissions</h3>
+<p>Before proceeding, verify you can create objects in your Snowflake account.</p>
+<p>Launch Cortex Code and run a test:</p>
+<pre class="hljs"><code><div>cortex
+</div></code></pre>
+<p>In Cortex Code, enter:</p>
+<pre class="hljs"><code><div>Test if I can create a database called COCO_FINANCIAL_TEST, 
+then drop it if successful. Show me the results.
+</div></code></pre>
+<p><strong>If successful:</strong> You're ready to proceed to Module 2.</p>
+<p><strong>If you get a permission error:</strong> You have two options:</p>
+<ol>
+<li><strong>Contact your Snowflake administrator</strong> to grant CREATE DATABASE privileges</li>
+<li><strong>Create a free trial account</strong> at: https://signup.snowflake.com/cortex-code?utm_cta=pushdown-signup</li>
+</ol>
+<hr>
+<h2 id="module-2-authentication-setup">Module 2: Authentication Setup</h2>
+<p>This module covers two authentication methods. Choose <strong>one</strong> based on your preference:</p>
+<ul>
+<li><strong>Option A: Key-Pair Authentication</strong> - More secure, recommended for production</li>
+<li><strong>Option B: PAT (Programmatic Access Token)</strong> - Simpler setup, good for development</li>
+</ul>
+<h3 id="option-a-key-pair-authentication">Option A: Key-Pair Authentication</h3>
+<p>Key-pair authentication uses RSA public/private keys for secure, passwordless authentication. We'll use <strong>Cortex Code</strong> to generate everything for us!</p>
+<h4 id="step-2a1-launch-cortex-code">Step 2A.1: Launch Cortex Code</h4>
+<pre class="hljs"><code><div>cortex
+</div></code></pre>
+<h4 id="step-2a2-generate-rsa-key-pair-with-cortex-code">Step 2A.2: Generate RSA Key Pair with Cortex Code</h4>
+<p>In Cortex Code, enter this prompt:</p>
+<pre class="hljs"><code><div>Generate an RSA key pair for Snowflake authentication:
+
+1. Create the directory ~/.snowflake/keys if it doesn't exist
+2. Generate a 2048-bit RSA private key in PKCS#8 format (unencrypted for this lab)
+3. Save it to ~/.snowflake/keys/rsa_key.p8
+4. Generate the corresponding public key
+5. Save it to ~/.snowflake/keys/rsa_key.pub
+6. Set secure permissions (600) on the private key
+7. Display the public key content (without headers) that I'll need for Snowflake
+</div></code></pre>
+<p>Cortex Code will execute the necessary commands and show you the public key content.</p>
+<h4 id="step-2a3-assign-public-key-to-your-snowflake-user">Step 2A.3: Assign Public Key to Your Snowflake User</h4>
+<p>Still in Cortex Code, enter:</p>
+<pre class="hljs"><code><div>Take the public key you just generated and create the SQL command 
+to assign it to my Snowflake user. My username is: YOUR_USERNAME
+
+Then help me run this command in Snowflake.
+</div></code></pre>
+<p>Cortex Code will generate and execute the ALTER USER command for you.</p>
+<h4 id="step-2a4-configure-connection-with-cortex-code">Step 2A.4: Configure Connection with Cortex Code</h4>
+<p>In Cortex Code, enter:</p>
+<pre class="hljs"><code><div>Create a Snowflake connection configuration for key-pair authentication:
+
+- Connection name: coco_lab
+- Account: YOUR_ACCOUNT_IDENTIFIER  
+- Username: YOUR_USERNAME
+- Private key path: ~/.snowflake/keys/rsa_key.p8
+- Warehouse: COMPUTE_WH
+- Database: COCO_FINANCIAL
+- Schema: FRAUD_ANALYTICS
+- Role: YOUR_ROLE
+
+Add this to my ~/.snowflake/connections.toml file.
+</div></code></pre>
+<h4 id="step-2a5-test-the-connection">Step 2A.5: Test the Connection</h4>
+<p>In Cortex Code:</p>
+<pre class="hljs"><code><div>Test my new coco_lab connection to make sure key-pair authentication is working.
+</div></code></pre>
+<p>Or exit and test manually:</p>
+<pre class="hljs"><code><div>snow connection <span class="hljs-built_in">test</span> -c coco_lab
+</div></code></pre>
+<p><strong>Congratulations!</strong> You just used Cortex Code to set up secure key-pair authentication without memorizing any OpenSSL commands!</p>
+<hr>
+<h3 id="option-b-pat-programmatic-access-token-authentication">Option B: PAT (Programmatic Access Token) Authentication</h3>
+<p>PAT tokens are easier to set up and are ideal for development and testing.</p>
+<h4 id="step-2b1-generate-pat-via-snowsight">Step 2B.1: Generate PAT via Snowsight</h4>
+<ol>
+<li>Log into Snowsight</li>
+<li>Click your username (bottom-left)</li>
+<li>Select <strong>My Profile</strong></li>
+<li>Go to <strong>Authentication</strong> tab</li>
+<li>Click <strong>+ Programmatic access token</strong></li>
+<li>Configure:
+<ul>
+<li><strong>Name:</strong> <code>coco_lab_token</code></li>
+<li><strong>Expiration:</strong> 30 days (or as needed)</li>
+<li><strong>Role restriction:</strong> (optional) select your role</li>
+</ul>
+</li>
+<li>Click <strong>Generate</strong></li>
+<li><strong>IMPORTANT:</strong> Copy and save the token immediately - it won't be shown again!</li>
+</ol>
+<h4 id="alternative-generate-pat-with-cortex-code">Alternative: Generate PAT with Cortex Code</h4>
+<p>Launch Cortex Code and enter:</p>
+<pre class="hljs"><code><div>Generate a Programmatic Access Token (PAT) for my Snowflake user.
+My username is: YOUR_USERNAME
+Token name: coco_lab_token
+Expiration: 30 days
+
+Run the ALTER USER command to create the token.
+</div></code></pre>
+<p><strong>IMPORTANT:</strong> Copy and save the token immediately - it won't be shown again!</p>
+<h4 id="step-2b2-configure-connection-with-cortex-code">Step 2B.2: Configure Connection with Cortex Code</h4>
+<p>In Cortex Code, enter:</p>
+<pre class="hljs"><code><div>Create a Snowflake connection using PAT authentication:
+
+- Connection name: coco_lab_pat
+- Account: YOUR_ACCOUNT_IDENTIFIER
+- Username: YOUR_USERNAME
+- PAT token: PASTE_YOUR_TOKEN_HERE
+- Warehouse: COMPUTE_WH
+- Database: COCO_FINANCIAL
+- Schema: FRAUD_ANALYTICS
+- Role: YOUR_ROLE
+
+Add this to my ~/.snowflake/connections.toml file.
+Also mention the security best practice for storing tokens.
+</div></code></pre>
+<h4 id="step-2b3-test-the-connection">Step 2B.3: Test the Connection</h4>
+<p>In Cortex Code:</p>
+<pre class="hljs"><code><div>Test my coco_lab_pat connection to verify PAT authentication is working.
+</div></code></pre>
+<p>Or manually:</p>
+<pre class="hljs"><code><div>snow connection <span class="hljs-built_in">test</span> -c coco_lab_pat
+</div></code></pre>
+<hr>
+<h2 id="module-3-deploy-fraud-analytics-dataset">Module 3: Deploy Fraud Analytics Dataset</h2>
+<p>Now let's deploy the CoCo-Financial fraud analytics dataset using Cortex Code.</p>
+<h3 id="step-31-launch-cortex-code-with-your-connection">Step 3.1: Launch Cortex Code with Your Connection</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Use your configured connection</span>
+cortex -c coco_lab
+<span class="hljs-comment"># OR for PAT</span>
+cortex -c coco_lab_pat
+</div></code></pre>
+<h3 id="step-32-review-the-dataset-schema">Step 3.2: Review the Dataset Schema</h3>
+<p>Before deploying, review the schema documentation:</p>
+<pre class="hljs"><code><div>Read the file data/schema.md and explain the CoCo-Financial 
+fraud analytics data model to me.
+</div></code></pre>
+<h3 id="step-33-deploy-the-database-and-tables">Step 3.3: Deploy the Database and Tables</h3>
+<p>In Cortex Code, enter:</p>
+<pre class="hljs"><code><div>Deploy the CoCo-Financial fraud analytics dataset using the SQL 
+in scripts/deploy_fraud_dataset.sql. Create all objects and 
+load the sample data. Show me the progress.
+</div></code></pre>
+<p>Alternatively, deploy step by step:</p>
+<pre class="hljs"><code><div>Create a database called COCO_FINANCIAL with a schema called FRAUD_ANALYTICS.
+Then create the following tables based on the schema in data/schema.json:
+- CUSTOMERS
+- ACCOUNTS  
+- TRANSACTIONS
+- MERCHANTS
+- FRAUD_LABELS
+- ALERTS
+
+After creating the tables, generate and load 10,000 sample records 
+with realistic fraud patterns.
+</div></code></pre>
+<h3 id="step-34-create-views">Step 3.4: Create Views</h3>
+<pre class="hljs"><code><div>Create the following views in COCO_FINANCIAL.FRAUD_ANALYTICS:
+
+1. VW_TRANSACTION_SUMMARY - Aggregates transactions by customer with 
+   fraud indicators
+2. VW_FRAUD_METRICS - Daily fraud metrics including fraud rate, 
+   total flagged amount, and alert counts
+</div></code></pre>
+<h3 id="step-35-create-semantic-view">Step 3.5: Create Semantic View</h3>
+<pre class="hljs"><code><div>Create a semantic view called SV_FRAUD_ANALYTICS based on the YAML 
+definition in data/semantic_view.yaml. This will enable natural 
+language queries against our fraud data.
+</div></code></pre>
+<h3 id="step-36-verify-deployment">Step 3.6: Verify Deployment</h3>
+<pre class="hljs"><code><div>Show me a summary of all objects in the COCO_FINANCIAL database 
+including row counts for each table.
+</div></code></pre>
+<hr>
+<h2 id="module-4-working-with-cortex-code-skills">Module 4: Working with Cortex Code Skills</h2>
+<p>Skills are reusable workflows that teach Cortex Code how to complete specific tasks consistently.</p>
+<h3 id="step-41-list-available-skills">Step 4.1: List Available Skills</h3>
+<p>In Cortex Code:</p>
+<pre class="hljs"><code><div>List all available skills and briefly describe what each does.
+</div></code></pre>
+<p>Or use the shortcut:</p>
+<pre class="hljs"><code><div>$$
+</div></code></pre>
+<h3 id="step-42-understand-skill-locations">Step 4.2: Understand Skill Locations</h3>
+<p>Skills are loaded from multiple locations in priority order:</p>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Location</th>
+<th>Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Project</td>
+<td><code>.cortex/skills/</code> in current directory</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Global</td>
+<td><code>~/.snowflake/cortex/skills/</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Remote</td>
+<td>Configured in <code>skills.json</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Bundled</td>
+<td>Shipped with Cortex Code</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-43-explore-a-bundled-skill">Step 4.3: Explore a Bundled Skill</h3>
+<pre class="hljs"><code><div>Show me the structure of the synthetic-data-demo skill.
+What are its main workflow steps?
+</div></code></pre>
+<h3 id="step-44-use-a-skill">Step 4.4: Use a Skill</h3>
+<p>Let's use the data-governance skill to analyze our fraud dataset:</p>
+<pre class="hljs"><code><div>$data-governance analyze the access patterns and permissions 
+for the COCO_FINANCIAL database.
+</div></code></pre>
+<h3 id="step-45-understand-skill-structure">Step 4.5: Understand Skill Structure</h3>
+<p>A skill consists of:</p>
+<pre class="hljs"><code><div>skill-name/
+├── SKILL.md              # Main skill file (required)
+├── templates/            # Optional templates
+└── references/           # Optional reference docs
+</div></code></pre>
+<p>The <code>SKILL.md</code> file contains:</p>
+<ul>
+<li><strong>Frontmatter</strong>: name, description, triggers</li>
+<li><strong>Workflow</strong>: Step-by-step instructions</li>
+<li><strong>Stopping Points</strong>: Where to pause for user input</li>
+<li><strong>Output</strong>: Expected deliverables</li>
+</ul>
+<hr>
+<h2 id="module-5-build-a-custom-skill">Module 5: Build a Custom Skill</h2>
+<p>Now let's create a custom skill for CoCo-Financial fraud analysis.</p>
+<h3 id="step-51-navigate-to-the-skill-directory">Step 5.1: Navigate to the Skill Directory</h3>
+<p>The skill template is already created at:</p>
+<pre class="hljs"><code><div>CoCo_HOL/skill/coco-financial-fraud/SKILL.md
+</div></code></pre>
+<h3 id="step-52-review-the-skill">Step 5.2: Review the Skill</h3>
+<pre class="hljs"><code><div>Read the skill file at skill/coco-financial-fraud/SKILL.md 
+and explain what it does.
+</div></code></pre>
+<h3 id="step-53-test-the-custom-skill">Step 5.3: Test the Custom Skill</h3>
+<p>First, let's add the skill to your project's skill path:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># Create local skills directory</span>
+mkdir -p .cortex/skills
+
+<span class="hljs-comment"># Copy our custom skill</span>
+cp -r skill/coco-financial-fraud .cortex/skills/
+</div></code></pre>
+<h3 id="step-54-use-the-custom-skill">Step 5.4: Use the Custom Skill</h3>
+<p>In Cortex Code:</p>
+<pre class="hljs"><code><div>$coco-financial-fraud analyze recent transaction patterns 
+and identify potential fraud indicators in our dataset.
+</div></code></pre>
+<h3 id="step-55-modify-the-skill-optional">Step 5.5: Modify the Skill (Optional)</h3>
+<pre class="hljs"><code><div>Help me enhance the coco-financial-fraud skill to also include:
+1. Velocity checks (rapid successive transactions)
+2. Geographic anomaly detection
+3. Time-based pattern analysis
+</div></code></pre>
+<hr>
+<h2 id="module-6-experimenting-with-cortex-code">Module 6: Experimenting with Cortex Code</h2>
+<p>This module lets you explore various Cortex Code capabilities hands-on.</p>
+<h3 id="61-natural-language-sql-generation">6.1: Natural Language SQL Generation</h3>
+<p>Try these queries against your fraud dataset:</p>
+<pre class="hljs"><code><div>What are the top 10 merchants by transaction volume?
+</div></code></pre>
+<pre class="hljs"><code><div>Show me customers with more than 5 flagged transactions 
+in the last 30 days.
+</div></code></pre>
+<pre class="hljs"><code><div>What's the average transaction amount by merchant category?
+</div></code></pre>
+<h3 id="62-data-exploration">6.2: Data Exploration</h3>
+<pre class="hljs"><code><div>Describe the TRANSACTIONS table and show me sample data 
+with any interesting patterns.
+</div></code></pre>
+<pre class="hljs"><code><div>Find correlations between transaction amount and fraud likelihood.
+</div></code></pre>
+<h3 id="63-semantic-view-queries">6.3: Semantic View Queries</h3>
+<p>Use natural language with your semantic view:</p>
+<pre class="hljs"><code><div>Using the SV_FRAUD_ANALYTICS semantic view, answer: 
+What was the fraud rate last month compared to the previous month?
+</div></code></pre>
+<pre class="hljs"><code><div>Using the semantic view, show me the highest risk customer segments.
+</div></code></pre>
+<h3 id="64-code-generation">6.4: Code Generation</h3>
+<pre class="hljs"><code><div>Write a Python script that connects to Snowflake and generates 
+a fraud risk report for the top 100 highest-risk customers.
+</div></code></pre>
+<pre class="hljs"><code><div>Create a Streamlit dashboard that displays real-time fraud metrics 
+from our COCO_FINANCIAL database.
+</div></code></pre>
+<h3 id="65-documentation-generation">6.5: Documentation Generation</h3>
+<pre class="hljs"><code><div>Generate technical documentation for the COCO_FINANCIAL database 
+including an ERD diagram and data dictionary.
+</div></code></pre>
+<h3 id="66-sql-optimization">6.6: SQL Optimization</h3>
+<pre class="hljs"><code><div>Analyze this query and suggest optimizations:
+
+SELECT c.customer_name, COUNT(t.transaction_id) as txn_count,
+       SUM(CASE WHEN f.is_fraud = TRUE THEN 1 ELSE 0 END) as fraud_count
+FROM CUSTOMERS c
+JOIN ACCOUNTS a ON c.customer_id = a.customer_id  
+JOIN TRANSACTIONS t ON a.account_id = t.account_id
+LEFT JOIN FRAUD_LABELS f ON t.transaction_id = f.transaction_id
+GROUP BY c.customer_name
+ORDER BY fraud_count DESC;
+</div></code></pre>
+<h3 id="67-working-with-files">6.7: Working with Files</h3>
+<p>Reference files directly in your prompts:</p>
+<pre class="hljs"><code><div>Read @data/schema.md and create a presentation summary 
+of our data model.
+</div></code></pre>
+<h3 id="68-keyboard-shortcuts">6.8: Keyboard Shortcuts</h3>
+<p>Try these shortcuts in Cortex Code:</p>
+<table>
+<thead>
+<tr>
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@</code></td>
+<td>File completion - reference local files</td>
+</tr>
+<tr>
+<td><code>$</code></td>
+<td>Skill tagging - invoke skills</td>
+</tr>
+<tr>
+<td><code>#</code></td>
+<td>Snowflake table reference</td>
+</tr>
+<tr>
+<td><code>!</code></td>
+<td>Run bash command</td>
+</tr>
+<tr>
+<td><code>/</code></td>
+<td>Slash commands menu</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>Quick help</td>
+</tr>
+<tr>
+<td><code>Shift+Tab</code></td>
+<td>Cycle operational modes</td>
+</tr>
+<tr>
+<td><code>Ctrl+J</code></td>
+<td>Insert newline</td>
+</tr>
+</tbody>
+</table>
+<h3 id="69-operational-modes">6.9: Operational Modes</h3>
+<p>Cortex Code has three operational modes:</p>
+<ol>
+<li><strong>Accept Edits</strong> (default) - Normal mode with permission checks</li>
+<li><strong>Plan Mode</strong> (<code>/plan</code>) - Review actions before execution</li>
+<li><strong>Bypass Mode</strong> (<code>/bypass</code>) - Auto-approve all tools (use carefully)</li>
+</ol>
+<p>Try switching modes:</p>
+<pre class="hljs"><code><div>/plan
+</div></code></pre>
+<p>Then run a query to see how plan mode shows you actions before executing.</p>
+<h3 id="610-session-management">6.10: Session Management</h3>
+<pre class="hljs"><code><div>/status          # Show current session status
+/model           # Switch AI model
+/clear           # Clear conversation context
+</div></code></pre>
+<hr>
+<h2 id="cleanup">Cleanup</h2>
+<p>When you're done with the lab, clean up the resources:</p>
+<pre class="hljs"><code><div><span class="hljs-comment">-- Run in Snowflake or via Cortex Code</span>
+<span class="hljs-keyword">DROP</span> <span class="hljs-keyword">DATABASE</span> <span class="hljs-keyword">IF</span> <span class="hljs-keyword">EXISTS</span> COCO_FINANCIAL;
+<span class="hljs-keyword">DROP</span> <span class="hljs-keyword">DATABASE</span> <span class="hljs-keyword">IF</span> <span class="hljs-keyword">EXISTS</span> COCO_FINANCIAL_TEST;
+</div></code></pre>
+<p>To remove your PAT token:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">USER</span> YOUR_USERNAME REMOVE PROGRAMMATIC <span class="hljs-keyword">ACCESS</span> TOKEN <span class="hljs-keyword">NAME</span> = <span class="hljs-string">'coco_lab_token'</span>;
+</div></code></pre>
+<hr>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="connection-issues">Connection Issues</h3>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Connection failed</code></td>
+<td>Invalid credentials</td>
+<td>Verify account, user, and auth method</td>
+</tr>
+<tr>
+<td><code>JWT token invalid</code></td>
+<td>Key mismatch</td>
+<td>Re-assign public key to user</td>
+</tr>
+<tr>
+<td><code>PAT expired</code></td>
+<td>Token expired</td>
+<td>Generate new PAT token</td>
+</tr>
+<tr>
+<td><code>Permission denied</code></td>
+<td>Insufficient role</td>
+<td>Contact admin or use trial account</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-fixes">Common Fixes</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># List and test connections</span>
+snow connection list
+snow connection <span class="hljs-built_in">test</span> -c &lt;connection_name&gt;
+
+<span class="hljs-comment"># Check Cortex Code version</span>
+cortex --version
+
+<span class="hljs-comment"># Reinstall Cortex Code if needed</span>
+curl -LsS https://ai.snowflake.com/static/cc-scripts/install.sh | sh
+</div></code></pre>
+<h3 id="getting-help">Getting Help</h3>
+<ul>
+<li>In Cortex Code: Type <code>?</code> or <code>/help</code></li>
+<li>Documentation: https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code-cli</li>
+<li>Trial signup: https://signup.snowflake.com/cortex-code?utm_cta=pushdown-signup</li>
+</ul>
+<hr>
+<h2 id="summary">Summary</h2>
+<p>Congratulations! You've completed the CoCo-Financial Fraud Analytics Hands-on Lab. You learned how to:</p>
+<ul>
+<li>Set up Key-Pair and PAT authentication with Snowflake</li>
+<li>Deploy a complete fraud analytics dataset using Cortex Code</li>
+<li>Create and use semantic views for natural language queries</li>
+<li>Work with built-in and custom Cortex Code skills</li>
+<li>Explore various Cortex Code capabilities</li>
+</ul>
+<h3 id="next-steps">Next Steps</h3>
+<ol>
+<li><strong>Explore more skills</strong>: Check <code>~/.snowflake/cortex/skills/</code> for additional skills</li>
+<li><strong>Build your own skills</strong>: Use the skill-development skill to create custom workflows</li>
+<li><strong>Connect to your data</strong>: Apply these techniques to your own datasets</li>
+<li><strong>Share with your team</strong>: Skills can be shared via Git repositories</li>
+</ol>
+<hr>
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><a href="https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code-cli">Cortex Code CLI Documentation</a></li>
+<li><a href="https://docs.snowflake.com/en/user-guide/key-pair-auth">Key-Pair Authentication Guide</a></li>
+<li><a href="https://docs.snowflake.com/en/user-guide/programmatic-access-tokens">Programmatic Access Tokens</a></li>
+<li><a href="https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-analyst">Semantic Views Documentation</a></li>
+<li><a href="https://docs.snowflake.com/en/developer-guide/snowflake-cli/index">Snowflake CLI</a></li>
+</ul>
+<hr>
+<p><strong>Lab Version:</strong> 1.0<br>
+<strong>Last Updated:</strong> February 2025<br>
+<strong>Author:</strong> CoCo-Financial HOL Team</p>
+
+</body>
+</html>

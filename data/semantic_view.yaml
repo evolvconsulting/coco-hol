@@ -1,0 +1,438 @@
+# CoCo-Financial Fraud Analytics Semantic View
+# This semantic model enables natural language queries against fraud data
+# Compatible with Snowflake Cortex Analyst
+
+name: coco_financial_fraud_analytics
+description: |
+  Semantic model for CoCo-Financial fraud analytics. 
+  Enables natural language queries about transactions, fraud patterns, 
+  customer risk, and alert management.
+
+# Database configuration
+database: COCO_FINANCIAL
+schema: FRAUD_ANALYTICS
+
+# Logical tables define the business entities
+tables:
+  - name: customers
+    description: Customer demographics and risk information
+    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.CUSTOMERS
+    
+    dimensions:
+      - name: customer_id
+        description: Unique customer identifier
+        expr: CUSTOMER_ID
+        data_type: VARCHAR
+        
+      - name: customer_name
+        description: Full customer name
+        expr: CUSTOMER_NAME
+        data_type: VARCHAR
+        synonyms:
+          - name
+          - client name
+        
+      - name: customer_segment
+        description: Customer segment classification (Premium, Standard, Basic)
+        expr: CUSTOMER_SEGMENT
+        data_type: VARCHAR
+        synonyms:
+          - segment
+          - tier
+          - classification
+        
+      - name: city
+        description: Customer city
+        expr: CITY
+        data_type: VARCHAR
+        
+      - name: state
+        description: Customer state or province
+        expr: STATE
+        data_type: VARCHAR
+        
+      - name: country
+        description: Customer country
+        expr: COUNTRY
+        data_type: VARCHAR
+        
+      - name: is_active
+        description: Whether the customer account is active
+        expr: IS_ACTIVE
+        data_type: BOOLEAN
+        synonyms:
+          - active
+          - active status
+          
+    time_dimensions:
+      - name: created_date
+        description: Date customer account was created
+        expr: CREATED_AT
+        data_type: TIMESTAMP
+        synonyms:
+          - signup date
+          - registration date
+          
+    measures:
+      - name: risk_score
+        description: Customer risk score from 0 to 100
+        expr: RISK_SCORE
+        data_type: NUMBER
+        synonyms:
+          - risk rating
+          - risk level
+
+  - name: accounts
+    description: Financial accounts linked to customers
+    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.ACCOUNTS
+    
+    dimensions:
+      - name: account_id
+        description: Unique account identifier
+        expr: ACCOUNT_ID
+        data_type: VARCHAR
+        
+      - name: account_type
+        description: Type of account (Checking, Savings, Credit, Investment)
+        expr: ACCOUNT_TYPE
+        data_type: VARCHAR
+        synonyms:
+          - type
+          - account category
+          
+      - name: currency
+        description: Account currency code
+        expr: CURRENCY
+        data_type: VARCHAR
+        
+      - name: status
+        description: Account status (Active, Suspended, Closed)
+        expr: STATUS
+        data_type: VARCHAR
+        synonyms:
+          - account status
+          
+    measures:
+      - name: balance
+        description: Current account balance
+        expr: BALANCE
+        data_type: NUMBER
+        default_aggregation: SUM
+        synonyms:
+          - current balance
+          - account balance
+          
+      - name: credit_limit
+        description: Credit limit for credit accounts
+        expr: CREDIT_LIMIT
+        data_type: NUMBER
+        default_aggregation: SUM
+
+  - name: transactions
+    description: Financial transaction records
+    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.TRANSACTIONS
+    
+    dimensions:
+      - name: transaction_id
+        description: Unique transaction identifier
+        expr: TRANSACTION_ID
+        data_type: VARCHAR
+        
+      - name: transaction_type
+        description: Type of transaction (Purchase, Withdrawal, Transfer, Refund, Payment)
+        expr: TRANSACTION_TYPE
+        data_type: VARCHAR
+        synonyms:
+          - type
+          - txn type
+          
+      - name: channel
+        description: Transaction channel (Online, POS, ATM, Mobile, Branch)
+        expr: CHANNEL
+        data_type: VARCHAR
+        synonyms:
+          - source
+          - origin
+          
+      - name: location_city
+        description: City where transaction occurred
+        expr: LOCATION_CITY
+        data_type: VARCHAR
+        synonyms:
+          - city
+          - transaction city
+          
+      - name: location_country
+        description: Country where transaction occurred
+        expr: LOCATION_COUNTRY
+        data_type: VARCHAR
+        synonyms:
+          - country
+          
+      - name: device_type
+        description: Device used for transaction
+        expr: DEVICE_TYPE
+        data_type: VARCHAR
+        synonyms:
+          - device
+          
+      - name: status
+        description: Transaction status (Completed, Pending, Failed, Reversed)
+        expr: STATUS
+        data_type: VARCHAR
+        synonyms:
+          - transaction status
+          
+    time_dimensions:
+      - name: transaction_date
+        description: Date and time of transaction
+        expr: TRANSACTION_TIMESTAMP
+        data_type: TIMESTAMP
+        synonyms:
+          - date
+          - timestamp
+          - when
+          
+    measures:
+      - name: amount
+        description: Transaction amount in local currency
+        expr: AMOUNT
+        data_type: NUMBER
+        default_aggregation: SUM
+        synonyms:
+          - value
+          - transaction amount
+          - transaction value
+
+  - name: merchants
+    description: Merchant information
+    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.MERCHANTS
+    
+    dimensions:
+      - name: merchant_id
+        description: Unique merchant identifier
+        expr: MERCHANT_ID
+        data_type: VARCHAR
+        
+      - name: merchant_name
+        description: Merchant business name
+        expr: MERCHANT_NAME
+        data_type: VARCHAR
+        synonyms:
+          - vendor
+          - store
+          - business
+          
+      - name: category
+        description: Merchant business category
+        expr: CATEGORY
+        data_type: VARCHAR
+        synonyms:
+          - merchant category
+          - business type
+          
+      - name: mcc_code
+        description: Merchant Category Code
+        expr: MCC_CODE
+        data_type: VARCHAR
+        
+      - name: is_verified
+        description: Whether merchant is verified
+        expr: IS_VERIFIED
+        data_type: BOOLEAN
+        synonyms:
+          - verified
+          
+    measures:
+      - name: merchant_risk_rating
+        description: Merchant risk rating from 1 to 5
+        expr: RISK_RATING
+        data_type: NUMBER
+        synonyms:
+          - risk rating
+
+  - name: fraud_labels
+    description: Fraud classification for transactions
+    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.FRAUD_LABELS
+    
+    dimensions:
+      - name: is_fraud
+        description: Whether transaction is fraudulent
+        expr: IS_FRAUD
+        data_type: BOOLEAN
+        synonyms:
+          - fraudulent
+          - fraud flag
+          
+      - name: fraud_type
+        description: Type of fraud detected
+        expr: FRAUD_TYPE
+        data_type: VARCHAR
+        synonyms:
+          - fraud category
+          
+      - name: detection_method
+        description: How fraud was detected (ML_Model, Rule_Based, Manual_Review, Customer_Report)
+        expr: DETECTION_METHOD
+        data_type: VARCHAR
+        synonyms:
+          - detection source
+          
+    measures:
+      - name: confidence_score
+        description: Model confidence score from 0 to 1
+        expr: CONFIDENCE_SCORE
+        data_type: NUMBER
+        synonyms:
+          - confidence
+          - model score
+
+  - name: alerts
+    description: Fraud alerts and investigations
+    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.ALERTS
+    
+    dimensions:
+      - name: alert_id
+        description: Unique alert identifier
+        expr: ALERT_ID
+        data_type: VARCHAR
+        
+      - name: alert_type
+        description: Type of alert triggered
+        expr: ALERT_TYPE
+        data_type: VARCHAR
+        synonyms:
+          - alert category
+          
+      - name: severity
+        description: Alert severity level (Low, Medium, High, Critical)
+        expr: SEVERITY
+        data_type: VARCHAR
+        synonyms:
+          - priority
+          - urgency
+          
+      - name: status
+        description: Alert status (Open, Investigating, Resolved, False_Positive)
+        expr: STATUS
+        data_type: VARCHAR
+        synonyms:
+          - alert status
+          
+    time_dimensions:
+      - name: alert_date
+        description: When alert was created
+        expr: ALERT_TIMESTAMP
+        data_type: TIMESTAMP
+        synonyms:
+          - created date
+          
+      - name: resolved_date
+        description: When alert was resolved
+        expr: RESOLVED_AT
+        data_type: TIMESTAMP
+        
+    measures:
+      - name: alert_risk_score
+        description: Risk score assigned to alert
+        expr: RISK_SCORE
+        data_type: NUMBER
+        synonyms:
+          - risk score
+
+# Relationships between tables
+relationships:
+  - name: customer_accounts
+    left_table: customers
+    right_table: accounts
+    join_type: one_to_many
+    relationship_columns:
+      - left_column: customer_id
+        right_column: CUSTOMER_ID
+        
+  - name: account_transactions
+    left_table: accounts
+    right_table: transactions
+    join_type: one_to_many
+    relationship_columns:
+      - left_column: account_id
+        right_column: ACCOUNT_ID
+        
+  - name: transaction_merchants
+    left_table: transactions
+    right_table: merchants
+    join_type: many_to_one
+    relationship_columns:
+      - left_column: MERCHANT_ID
+        right_column: merchant_id
+        
+  - name: transaction_fraud_labels
+    left_table: transactions
+    right_table: fraud_labels
+    join_type: one_to_one
+    relationship_columns:
+      - left_column: transaction_id
+        right_column: TRANSACTION_ID
+        
+  - name: transaction_alerts
+    left_table: transactions
+    right_table: alerts
+    join_type: one_to_many
+    relationship_columns:
+      - left_column: transaction_id
+        right_column: TRANSACTION_ID
+
+# Verified queries - examples that demonstrate correct SQL generation
+verified_queries:
+  - name: total_fraud_amount
+    question: What is the total fraud amount?
+    sql: |
+      SELECT SUM(t.AMOUNT) as total_fraud_amount
+      FROM COCO_FINANCIAL.FRAUD_ANALYTICS.TRANSACTIONS t
+      JOIN COCO_FINANCIAL.FRAUD_ANALYTICS.FRAUD_LABELS f 
+        ON t.TRANSACTION_ID = f.TRANSACTION_ID
+      WHERE f.IS_FRAUD = TRUE
+      
+  - name: fraud_rate_by_channel
+    question: What is the fraud rate by channel?
+    sql: |
+      SELECT 
+        t.CHANNEL,
+        COUNT(*) as total_transactions,
+        SUM(CASE WHEN f.IS_FRAUD THEN 1 ELSE 0 END) as fraud_count,
+        ROUND(SUM(CASE WHEN f.IS_FRAUD THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as fraud_rate_pct
+      FROM COCO_FINANCIAL.FRAUD_ANALYTICS.TRANSACTIONS t
+      JOIN COCO_FINANCIAL.FRAUD_ANALYTICS.FRAUD_LABELS f 
+        ON t.TRANSACTION_ID = f.TRANSACTION_ID
+      GROUP BY t.CHANNEL
+      ORDER BY fraud_rate_pct DESC
+      
+  - name: high_risk_customers
+    question: Who are the highest risk customers?
+    sql: |
+      SELECT 
+        c.CUSTOMER_NAME,
+        c.CUSTOMER_SEGMENT,
+        c.RISK_SCORE,
+        COUNT(DISTINCT a.ALERT_ID) as alert_count
+      FROM COCO_FINANCIAL.FRAUD_ANALYTICS.CUSTOMERS c
+      LEFT JOIN COCO_FINANCIAL.FRAUD_ANALYTICS.ALERTS a 
+        ON c.CUSTOMER_ID = a.CUSTOMER_ID
+      WHERE c.RISK_SCORE > 70
+      GROUP BY c.CUSTOMER_NAME, c.CUSTOMER_SEGMENT, c.RISK_SCORE
+      ORDER BY c.RISK_SCORE DESC
+      LIMIT 20
+      
+  - name: monthly_fraud_trend
+    question: What is the monthly fraud trend?
+    sql: |
+      SELECT 
+        DATE_TRUNC('MONTH', t.TRANSACTION_TIMESTAMP) as month,
+        COUNT(*) as total_transactions,
+        SUM(CASE WHEN f.IS_FRAUD THEN 1 ELSE 0 END) as fraud_count,
+        SUM(CASE WHEN f.IS_FRAUD THEN t.AMOUNT ELSE 0 END) as fraud_amount
+      FROM COCO_FINANCIAL.FRAUD_ANALYTICS.TRANSACTIONS t
+      JOIN COCO_FINANCIAL.FRAUD_ANALYTICS.FRAUD_LABELS f 
+        ON t.TRANSACTION_ID = f.TRANSACTION_ID
+      GROUP BY DATE_TRUNC('MONTH', t.TRANSACTION_TIMESTAMP)
+      ORDER BY month DESC

@@ -1,0 +1,98 @@
+erDiagram
+    CUSTOMERS ||--o{ ACCOUNTS : has
+    CUSTOMERS ||--o{ ALERTS : receives
+    ACCOUNTS ||--o{ TRANSACTIONS : contains
+    ACCOUNTS ||--o{ ALERTS : triggers
+    MERCHANTS ||--o{ TRANSACTIONS : processes
+    TRANSACTIONS ||--o| FRAUD_LABELS : has
+    TRANSACTIONS ||--o{ ALERTS : generates
+
+    CUSTOMERS {
+        varchar(36) customer_id PK
+        varchar(100) customer_name
+        varchar(255) email
+        varchar(50) phone
+        varchar(255) address
+        varchar(100) city
+        varchar(50) state
+        varchar(20) postal_code
+        varchar(50) country
+        date date_of_birth
+        timestamp created_at
+        varchar(20) customer_segment
+        decimal(10_2) risk_score
+        boolean is_active
+    }
+
+    ACCOUNTS {
+        varchar(36) account_id PK
+        varchar(36) customer_id FK
+        varchar(20) account_type
+        varchar(20) account_number
+        varchar(10) currency
+        decimal(15_2) balance
+        decimal(15_2) credit_limit
+        timestamp opened_date
+        varchar(20) status
+        boolean is_primary
+    }
+
+    TRANSACTIONS {
+        varchar(36) transaction_id PK
+        varchar(36) account_id FK
+        varchar(36) merchant_id FK
+        timestamp transaction_timestamp
+        decimal(12_2) amount
+        varchar(10) currency
+        varchar(30) transaction_type
+        varchar(20) channel
+        varchar(100) description
+        varchar(50) location_city
+        varchar(50) location_country
+        decimal(10_6) latitude
+        decimal(10_6) longitude
+        varchar(20) device_type
+        varchar(50) ip_address
+        varchar(20) status
+        varchar(36) reference_id
+    }
+
+    MERCHANTS {
+        varchar(36) merchant_id PK
+        varchar(100) merchant_name
+        varchar(50) category
+        varchar(20) mcc_code
+        varchar(100) city
+        varchar(50) country
+        decimal(5_2) risk_rating
+        boolean is_verified
+        timestamp registered_date
+    }
+
+    FRAUD_LABELS {
+        varchar(36) label_id PK
+        varchar(36) transaction_id FK
+        boolean is_fraud
+        varchar(50) fraud_type
+        decimal(5_2) confidence_score
+        varchar(50) detection_method
+        timestamp labeled_at
+        varchar(100) labeled_by
+        text notes
+    }
+
+    ALERTS {
+        varchar(36) alert_id PK
+        varchar(36) transaction_id FK
+        varchar(36) account_id FK
+        varchar(36) customer_id FK
+        timestamp alert_timestamp
+        varchar(50) alert_type
+        varchar(20) severity
+        varchar(20) status
+        text description
+        decimal(5_2) risk_score
+        timestamp resolved_at
+        varchar(100) resolved_by
+        text resolution_notes
+    }

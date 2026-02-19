@@ -1,0 +1,262 @@
+-- ============================================================================
+-- CoCo-Financial Fraud Analytics - Database Deployment Script
+-- ============================================================================
+-- This script creates the complete fraud analytics database structure
+-- Run this script using Cortex Code or directly in Snowflake
+-- ============================================================================
+
+-- ============================================================================
+-- SECTION 1: DATABASE AND SCHEMA SETUP
+-- ============================================================================
+
+-- Create database
+CREATE DATABASE IF NOT EXISTS COCO_FINANCIAL
+    COMMENT = 'CoCo-Financial Fraud Analytics Database for HOL';
+
+-- Use the database
+USE DATABASE COCO_FINANCIAL;
+
+-- Create schema
+CREATE SCHEMA IF NOT EXISTS FRAUD_ANALYTICS
+    COMMENT = 'Schema for fraud detection and analytics';
+
+-- Use the schema
+USE SCHEMA FRAUD_ANALYTICS;
+
+-- ============================================================================
+-- SECTION 2: CREATE TABLES
+-- ============================================================================
+
+-- CUSTOMERS table
+CREATE OR REPLACE TABLE CUSTOMERS (
+    CUSTOMER_ID VARCHAR(36) NOT NULL PRIMARY KEY,
+    CUSTOMER_NAME VARCHAR(100) NOT NULL,
+    EMAIL VARCHAR(255),
+    PHONE VARCHAR(50),
+    ADDRESS VARCHAR(255),
+    CITY VARCHAR(100),
+    STATE VARCHAR(50),
+    POSTAL_CODE VARCHAR(20),
+    COUNTRY VARCHAR(50) DEFAULT 'USA',
+    DATE_OF_BIRTH DATE,
+    CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    CUSTOMER_SEGMENT VARCHAR(20),
+    RISK_SCORE DECIMAL(10,2) DEFAULT 0,
+    IS_ACTIVE BOOLEAN DEFAULT TRUE
+)
+COMMENT = 'Primary customer information table';
+
+-- ACCOUNTS table
+CREATE OR REPLACE TABLE ACCOUNTS (
+    ACCOUNT_ID VARCHAR(36) NOT NULL PRIMARY KEY,
+    CUSTOMER_ID VARCHAR(36) NOT NULL,
+    ACCOUNT_TYPE VARCHAR(20) NOT NULL,
+    ACCOUNT_NUMBER VARCHAR(20) NOT NULL,
+    CURRENCY VARCHAR(10) DEFAULT 'USD',
+    BALANCE DECIMAL(15,2) DEFAULT 0,
+    CREDIT_LIMIT DECIMAL(15,2),
+    OPENED_DATE TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    STATUS VARCHAR(20) DEFAULT 'Active',
+    IS_PRIMARY BOOLEAN DEFAULT FALSE,
+    CONSTRAINT FK_ACCOUNTS_CUSTOMER FOREIGN KEY (CUSTOMER_ID) 
+        REFERENCES CUSTOMERS(CUSTOMER_ID)
+)
+COMMENT = 'Financial accounts linked to customers';
+
+-- MERCHANTS table
+CREATE OR REPLACE TABLE MERCHANTS (
+    MERCHANT_ID VARCHAR(36) NOT NULL PRIMARY KEY,
+    MERCHANT_NAME VARCHAR(100) NOT NULL,
+    CATEGORY VARCHAR(50),
+    MCC_CODE VARCHAR(20),
+    CITY VARCHAR(100),
+    COUNTRY VARCHAR(50) DEFAULT 'USA',
+    RISK_RATING DECIMAL(5,2) DEFAULT 1.0,
+    IS_VERIFIED BOOLEAN DEFAULT FALSE,
+    REGISTERED_DATE TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+)
+COMMENT = 'Merchant and vendor information';
+
+-- TRANSACTIONS table
+CREATE OR REPLACE TABLE TRANSACTIONS (
+    TRANSACTION_ID VARCHAR(36) NOT NULL PRIMARY KEY,
+    ACCOUNT_ID VARCHAR(36) NOT NULL,
+    MERCHANT_ID VARCHAR(36),
+    TRANSACTION_TIMESTAMP TIMESTAMP_NTZ NOT NULL,
+    AMOUNT DECIMAL(12,2) NOT NULL,
+    CURRENCY VARCHAR(10) DEFAULT 'USD',
+    TRANSACTION_TYPE VARCHAR(30) NOT NULL,
+    CHANNEL VARCHAR(20),
+    DESCRIPTION VARCHAR(100),
+    LOCATION_CITY VARCHAR(50),
+    LOCATION_COUNTRY VARCHAR(50),
+    LATITUDE DECIMAL(10,6),
+    LONGITUDE DECIMAL(10,6),
+    DEVICE_TYPE VARCHAR(20),
+    IP_ADDRESS VARCHAR(50),
+    STATUS VARCHAR(20) DEFAULT 'Completed',
+    REFERENCE_ID VARCHAR(36),
+    CONSTRAINT FK_TRANSACTIONS_ACCOUNT FOREIGN KEY (ACCOUNT_ID) 
+        REFERENCES ACCOUNTS(ACCOUNT_ID),
+    CONSTRAINT FK_TRANSACTIONS_MERCHANT FOREIGN KEY (MERCHANT_ID) 
+        REFERENCES MERCHANTS(MERCHANT_ID)
+)
+COMMENT = 'Individual financial transactions';
+
+-- FRAUD_LABELS table
+CREATE OR REPLACE TABLE FRAUD_LABELS (
+    LABEL_ID VARCHAR(36) NOT NULL PRIMARY KEY,
+    TRANSACTION_ID VARCHAR(36) NOT NULL,
+    IS_FRAUD BOOLEAN DEFAULT FALSE,
+    FRAUD_TYPE VARCHAR(50),
+    CONFIDENCE_SCORE DECIMAL(5,2),
+    DETECTION_METHOD VARCHAR(50),
+    LABELED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    LABELED_BY VARCHAR(100),
+    NOTES TEXT,
+    CONSTRAINT FK_FRAUD_LABELS_TRANSACTION FOREIGN KEY (TRANSACTION_ID) 
+        REFERENCES TRANSACTIONS(TRANSACTION_ID)
+)
+COMMENT = 'Fraud classification labels for transactions';
+
+-- ALERTS table
+CREATE OR REPLACE TABLE ALERTS (
+    ALERT_ID VARCHAR(36) NOT NULL PRIMARY KEY,
+    TRANSACTION_ID VARCHAR(36),
+    ACCOUNT_ID VARCHAR(36),
+    CUSTOMER_ID VARCHAR(36),
+    ALERT_TIMESTAMP TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    ALERT_TYPE VARCHAR(50) NOT NULL,
+    SEVERITY VARCHAR(20) DEFAULT 'Medium',
+    STATUS VARCHAR(20) DEFAULT 'Open',
+    DESCRIPTION TEXT,
+    RISK_SCORE DECIMAL(5,2),
+    RESOLVED_AT TIMESTAMP_NTZ,
+    RESOLVED_BY VARCHAR(100),
+    RESOLUTION_NOTES TEXT,
+    CONSTRAINT FK_ALERTS_TRANSACTION FOREIGN KEY (TRANSACTION_ID) 
+        REFERENCES TRANSACTIONS(TRANSACTION_ID),
+    CONSTRAINT FK_ALERTS_ACCOUNT FOREIGN KEY (ACCOUNT_ID) 
+        REFERENCES ACCOUNTS(ACCOUNT_ID),
+    CONSTRAINT FK_ALERTS_CUSTOMER FOREIGN KEY (CUSTOMER_ID) 
+        REFERENCES CUSTOMERS(CUSTOMER_ID)
+)
+COMMENT = 'Fraud alerts and their resolution status';
+
+-- ============================================================================
+-- SECTION 3: CREATE VIEWS
+-- ============================================================================
+
+-- Transaction Summary View
+CREATE OR REPLACE VIEW VW_TRANSACTION_SUMMARY AS
+SELECT 
+    c.CUSTOMER_ID,
+    c.CUSTOMER_NAME,
+    c.CUSTOMER_SEGMENT,
+    c.RISK_SCORE AS CUSTOMER_RISK_SCORE,
+    COUNT(t.TRANSACTION_ID) AS TOTAL_TRANSACTIONS,
+    SUM(t.AMOUNT) AS TOTAL_AMOUNT,
+    AVG(t.AMOUNT) AS AVG_TRANSACTION_AMOUNT,
+    MIN(t.TRANSACTION_TIMESTAMP) AS FIRST_TRANSACTION,
+    MAX(t.TRANSACTION_TIMESTAMP) AS LAST_TRANSACTION,
+    COUNT(CASE WHEN f.IS_FRAUD = TRUE THEN 1 END) AS FRAUD_COUNT,
+    SUM(CASE WHEN f.IS_FRAUD = TRUE THEN t.AMOUNT ELSE 0 END) AS FRAUD_AMOUNT,
+    ROUND(COUNT(CASE WHEN f.IS_FRAUD = TRUE THEN 1 END) * 100.0 / 
+          NULLIF(COUNT(t.TRANSACTION_ID), 0), 2) AS FRAUD_RATE_PCT
+FROM CUSTOMERS c
+LEFT JOIN ACCOUNTS a ON c.CUSTOMER_ID = a.CUSTOMER_ID
+LEFT JOIN TRANSACTIONS t ON a.ACCOUNT_ID = t.ACCOUNT_ID
+LEFT JOIN FRAUD_LABELS f ON t.TRANSACTION_ID = f.TRANSACTION_ID
+GROUP BY c.CUSTOMER_ID, c.CUSTOMER_NAME, c.CUSTOMER_SEGMENT, c.RISK_SCORE;
+
+COMMENT ON VIEW VW_TRANSACTION_SUMMARY IS 'Aggregated transaction metrics by customer including fraud indicators';
+
+-- Fraud Metrics View
+CREATE OR REPLACE VIEW VW_FRAUD_METRICS AS
+SELECT 
+    DATE(t.TRANSACTION_TIMESTAMP) AS TRANSACTION_DATE,
+    COUNT(t.TRANSACTION_ID) AS TOTAL_TRANSACTIONS,
+    SUM(t.AMOUNT) AS TOTAL_AMOUNT,
+    COUNT(CASE WHEN f.IS_FRAUD = TRUE THEN 1 END) AS FRAUD_TRANSACTIONS,
+    SUM(CASE WHEN f.IS_FRAUD = TRUE THEN t.AMOUNT ELSE 0 END) AS FRAUD_AMOUNT,
+    ROUND(COUNT(CASE WHEN f.IS_FRAUD = TRUE THEN 1 END) * 100.0 / 
+          NULLIF(COUNT(t.TRANSACTION_ID), 0), 4) AS FRAUD_RATE_PCT,
+    COUNT(DISTINCT al.ALERT_ID) AS ALERT_COUNT,
+    COUNT(CASE WHEN al.SEVERITY = 'Critical' THEN 1 END) AS CRITICAL_ALERTS,
+    COUNT(CASE WHEN al.SEVERITY = 'High' THEN 1 END) AS HIGH_ALERTS,
+    COUNT(CASE WHEN al.STATUS = 'Resolved' THEN 1 END) AS RESOLVED_ALERTS
+FROM TRANSACTIONS t
+LEFT JOIN FRAUD_LABELS f ON t.TRANSACTION_ID = f.TRANSACTION_ID
+LEFT JOIN ALERTS al ON t.TRANSACTION_ID = al.TRANSACTION_ID
+GROUP BY DATE(t.TRANSACTION_TIMESTAMP)
+ORDER BY TRANSACTION_DATE DESC;
+
+COMMENT ON VIEW VW_FRAUD_METRICS IS 'Daily fraud metrics for dashboard and reporting';
+
+-- Merchant Risk View
+CREATE OR REPLACE VIEW VW_MERCHANT_RISK AS
+SELECT 
+    m.MERCHANT_ID,
+    m.MERCHANT_NAME,
+    m.CATEGORY,
+    m.RISK_RATING,
+    m.IS_VERIFIED,
+    COUNT(t.TRANSACTION_ID) AS TOTAL_TRANSACTIONS,
+    SUM(t.AMOUNT) AS TOTAL_VOLUME,
+    COUNT(CASE WHEN f.IS_FRAUD = TRUE THEN 1 END) AS FRAUD_COUNT,
+    SUM(CASE WHEN f.IS_FRAUD = TRUE THEN t.AMOUNT ELSE 0 END) AS FRAUD_VOLUME,
+    ROUND(COUNT(CASE WHEN f.IS_FRAUD = TRUE THEN 1 END) * 100.0 / 
+          NULLIF(COUNT(t.TRANSACTION_ID), 0), 2) AS FRAUD_RATE_PCT
+FROM MERCHANTS m
+LEFT JOIN TRANSACTIONS t ON m.MERCHANT_ID = t.MERCHANT_ID
+LEFT JOIN FRAUD_LABELS f ON t.TRANSACTION_ID = f.TRANSACTION_ID
+GROUP BY m.MERCHANT_ID, m.MERCHANT_NAME, m.CATEGORY, m.RISK_RATING, m.IS_VERIFIED
+ORDER BY FRAUD_RATE_PCT DESC;
+
+COMMENT ON VIEW VW_MERCHANT_RISK IS 'Merchant risk analysis with fraud metrics';
+
+-- ============================================================================
+-- SECTION 4: CREATE FILE FORMAT AND STAGE (for data loading)
+-- ============================================================================
+
+CREATE OR REPLACE FILE FORMAT CSV_FORMAT
+    TYPE = 'CSV'
+    FIELD_OPTIONALLY_ENCLOSED_BY = '"'
+    SKIP_HEADER = 1
+    NULL_IF = ('', 'NULL', 'null')
+    EMPTY_FIELD_AS_NULL = TRUE;
+
+CREATE OR REPLACE STAGE DATA_STAGE
+    FILE_FORMAT = CSV_FORMAT
+    COMMENT = 'Stage for loading fraud analytics data';
+
+-- ============================================================================
+-- SECTION 5: VERIFICATION QUERIES
+-- ============================================================================
+
+-- Show all created objects
+SHOW TABLES IN SCHEMA COCO_FINANCIAL.FRAUD_ANALYTICS;
+SHOW VIEWS IN SCHEMA COCO_FINANCIAL.FRAUD_ANALYTICS;
+
+-- ============================================================================
+-- SECTION 6: SAMPLE DATA GENERATION (Optional - use Cortex Code)
+-- ============================================================================
+-- 
+-- To generate sample data, use Cortex Code with this prompt:
+-- 
+-- "Generate 1000 customers, 1500 accounts, 500 merchants, 50000 transactions,
+--  and corresponding fraud labels and alerts for the COCO_FINANCIAL database.
+--  Include realistic fraud patterns:
+--  - ~3% fraud rate overall
+--  - Higher fraud in online channels
+--  - Velocity attacks (rapid transactions)
+--  - Geographic anomalies
+--  - Amount anomalies for high-value transactions"
+--
+-- ============================================================================
+
+-- ============================================================================
+-- CLEANUP SCRIPT (Uncomment to use)
+-- ============================================================================
+-- DROP DATABASE IF EXISTS COCO_FINANCIAL;
+-- ============================================================================
