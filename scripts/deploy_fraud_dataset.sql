@@ -239,19 +239,27 @@ SHOW TABLES IN SCHEMA COCO_FINANCIAL.FRAUD_ANALYTICS;
 SHOW VIEWS IN SCHEMA COCO_FINANCIAL.FRAUD_ANALYTICS;
 
 -- ============================================================================
--- SECTION 6: SAMPLE DATA GENERATION (Optional - use Cortex Code)
+-- SECTION 6: SAMPLE DATA GENERATION
 -- ============================================================================
 -- 
--- To generate sample data, use Cortex Code with this prompt:
+-- To generate sample data, you have two options:
 -- 
--- "Generate 1000 customers, 1500 accounts, 500 merchants, 50000 transactions,
---  and corresponding fraud labels and alerts for the COCO_FINANCIAL database.
---  Include realistic fraud patterns:
---  - ~3% fraud rate overall
---  - Higher fraud in online channels
---  - Velocity attacks (rapid transactions)
---  - Geographic anomalies
---  - Amount anomalies for high-value transactions"
+-- OPTION A: Run the dedicated data generation script
+--   snow sql -f scripts/generate_sample_data.sql -c <your_connection>
+-- 
+-- OPTION B: Use Cortex Code with this prompt:
+--   "Generate sample data for the COCO_FINANCIAL.FRAUD_ANALYTICS tables:
+--    - 1,000 customers across Premium, Standard, and Basic segments
+--    - 1,500 accounts (mix of Checking, Savings, Credit, Investment)
+--    - 500 merchants across various categories
+--    - 50,000 transactions over the last 90 days
+--    - Corresponding fraud labels with ~3% fraud rate
+--    - 2,500 alerts with various severity levels"
+--
+-- NOTE: When generating random data in Snowflake, avoid using RANDOM() directly
+-- in arithmetic expressions as it can overflow. Use these safe patterns instead:
+--   - For random ordering: UNIFORM(0::FLOAT, 1::FLOAT, RANDOM())
+--   - For bounded random integers: ABS(MOD(HASH(seed), range))
 --
 -- ============================================================================
 

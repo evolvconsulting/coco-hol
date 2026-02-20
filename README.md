@@ -232,9 +232,9 @@ PAT tokens are easier to set up and are ideal for development and testing.
 
 1. Log into Snowsight
 2. Click your username (bottom-left)
-3. Select **My Profile**
-4. Go to **Authentication** tab
-5. Click **+ Programmatic access token**
+3. Select **Settings**
+4. Select **Authentication**
+5. Under "Programmatic access tokens", click **Generate new token**
 6. Configure:
    - **Name:** `coco_lab_token`
    - **Expiration:** 30 days (or as needed)
@@ -315,52 +315,64 @@ Read the file data/schema.md and explain the CoCo-Financial
 fraud analytics data model to me.
 ```
 
-### Step 3.3: Deploy the Database and Tables
+### Step 3.3: Deploy All Database Objects
 
 In Cortex Code, enter:
 
 ```
-Deploy the CoCo-Financial fraud analytics dataset using the SQL 
-in scripts/deploy_fraud_dataset.sql. Create all objects and 
-load the sample data. Show me the progress.
+Deploy the CoCo-Financial fraud analytics dataset:
+
+1. Run the SQL in scripts/deploy_fraud_dataset.sql to create the 
+   database, schema, tables, views, and stage
+2. Create the semantic view from data/semantic_view.yaml
+
+Show me the progress for each step.
 ```
 
-Alternatively, deploy step by step:
+This single command deploys:
+- **Database:** COCO_FINANCIAL
+- **Schema:** FRAUD_ANALYTICS
+- **Tables:** CUSTOMERS, ACCOUNTS, TRANSACTIONS, MERCHANTS, FRAUD_LABELS, ALERTS
+- **Views:** VW_TRANSACTION_SUMMARY, VW_FRAUD_METRICS, VW_MERCHANT_RISK
+- **Semantic View:** SV_FRAUD_ANALYTICS (for natural language queries)
+
+### Step 3.4: Generate Sample Data
+
+Once deployment completes, generate realistic sample data. You have two options:
+
+**Option A: Use Cortex Code (Recommended)**
 
 ```
-Create a database called COCO_FINANCIAL with a schema called FRAUD_ANALYTICS.
-Then create the following tables based on the schema in data/schema.json:
-- CUSTOMERS
-- ACCOUNTS  
-- TRANSACTIONS
-- MERCHANTS
-- FRAUD_LABELS
-- ALERTS
+Generate sample data for the COCO_FINANCIAL.FRAUD_ANALYTICS tables:
+- 1,000 customers across Premium, Standard, and Basic segments
+- 1,500 accounts (mix of Checking, Savings, Credit, Investment)
+- 500 merchants across various categories
+- 50,000 transactions over the last 90 days
+- Corresponding fraud labels with ~3% fraud rate
+- 2,500 alerts with various severity levels
 
-After creating the tables, generate and load 10,000 sample records 
-with realistic fraud patterns.
+Include realistic fraud patterns:
+- Higher fraud rates in Online channel
+- Card-Not-Present fraud
+- Velocity attacks (rapid transactions)
+- Geographic anomalies
 ```
 
-### Step 3.4: Create Views
+**Option B: Run the SQL Script Directly**
+
+If you prefer to run SQL directly, use the pre-built data generation script:
 
 ```
-Create the following views in COCO_FINANCIAL.FRAUD_ANALYTICS:
-
-1. VW_TRANSACTION_SUMMARY - Aggregates transactions by customer with 
-   fraud indicators
-2. VW_FRAUD_METRICS - Daily fraud metrics including fraud rate, 
-   total flagged amount, and alert counts
+Run the SQL script at scripts/generate_sample_data.sql to populate all tables.
 ```
 
-### Step 3.5: Create Semantic View
+Or execute it via Snowflake CLI:
 
-```
-Create a semantic view called SV_FRAUD_ANALYTICS based on the YAML 
-definition in data/semantic_view.yaml. This will enable natural 
-language queries against our fraud data.
+```bash
+snow sql -f scripts/generate_sample_data.sql -c coco_lab
 ```
 
-### Step 3.6: Verify Deployment
+### Step 3.5: Verify Deployment
 
 ```
 Show me a summary of all objects in the COCO_FINANCIAL database 
@@ -439,46 +451,121 @@ Now let's create a custom skill for CoCo-Financial fraud analysis.
 
 ### Step 5.1: Navigate to the Skill Directory
 
-The skill template is already created at:
+The custom skill is already set up in the proper location:
 ```
-CoCo_HOL/skill/coco-financial-fraud/SKILL.md
+CoCo_HOL/.cortex/skills/coco-financial-fraud/SKILL.md
 ```
 
-### Step 5.2: Review the Skill
+(Note: Skills in `.cortex/skills/` are automatically loaded by Cortex Code when you're in this project directory.)
+
+### Step 5.2: Explore the Project Skills Directory
+
+This project includes three custom skills in `.cortex/skills/`:
 
 ```
-Read the skill file at skill/coco-financial-fraud/SKILL.md 
+.cortex/skills/
+├── coco-financial-fraud/      # Fraud analysis skill
+│   └── SKILL.md
+├── streamlit-in-snowflake/    # SiS deployment guide (CRITICAL)
+│   └── SKILL.md
+└── synthetic-data-demo/       # Data generation skill
+    ├── SKILL.md
+    ├── DEMO_PROMPTS.md
+    ├── scripts/
+    │   ├── ask_questions.sh
+    │   ├── generate_schema.py
+    │   ├── generate_data.py
+    │   └── generate_streamlit.py
+    └── templates/
+        └── streamlit_base.py
+```
+
+In Cortex Code, explore the fraud analysis skill:
+
+```
+Read the skill file at .cortex/skills/coco-financial-fraud/SKILL.md 
 and explain what it does.
 ```
 
-### Step 5.3: Test the Custom Skill
+### Step 5.3: Verify Skills are Loaded
 
-First, let's add the skill to your project's skill path:
+Cortex Code automatically loads skills from `.cortex/skills/` when you're in the project directory.
 
-```bash
-# Create local skills directory
-mkdir -p .cortex/skills
+In Cortex Code, list available skills to confirm they're loaded:
 
-# Copy our custom skill
-cp -r skill/coco-financial-fraud .cortex/skills/
+```
+List all available skills and check if coco-financial-fraud is present.
 ```
 
-### Step 5.4: Use the Custom Skill
+Or use the shortcut `$$` to see all skills. You should see:
+- `coco-financial-fraud` - Custom fraud analysis for this lab
+- `streamlit-in-snowflake` - **Critical** SiS deployment patterns and API limitations
+- `synthetic-data-demo` - Data generation workflows (bundled skill also in project)
 
-In Cortex Code:
+**Tip:** If the skill doesn't appear, ensure you launched Cortex Code from within the `CoCo_HOL` directory.
 
+### Step 5.4: Use the Custom Fraud Analysis Skill
+
+In Cortex Code, invoke the skill with specific analysis requests:
+
+**Example 1: Analyze Transaction Patterns**
 ```
 $coco-financial-fraud analyze recent transaction patterns 
 and identify potential fraud indicators in our dataset.
 ```
 
-### Step 5.5: Modify the Skill (Optional)
+**Example 2: Investigate High-Risk Merchants**
+```
+$coco-financial-fraud identify merchants with unusually high 
+fraud rates and summarize the risk factors.
+```
+
+**Example 3: Customer Risk Assessment**
+```
+$coco-financial-fraud analyze customer segments to find which 
+have the highest fraud exposure and why.
+```
+
+### Step 5.5: Use the Data Governance Skill
+
+Cortex Code includes a built-in `data-governance` skill that queries Snowflake's ACCOUNT_USAGE views. Try analyzing your fraud dataset:
+
+```
+$data-governance analyze the access patterns and permissions 
+for the COCO_FINANCIAL database.
+```
+
+This will show you:
+- **Users** who have accessed the database
+- **Most accessed objects** (tables, views)
+- **Policies** applied (masking, row access)
+- **Grants and permissions** structure
+- **Sensitive columns** that may need protection
+
+**Sample Output:**
+| Object | Access Count |
+|--------|--------------|
+| FRAUD_LABELS | 10 |
+| TRANSACTIONS | 9 |
+| ACCOUNTS | 4 |
+
+### Step 5.6: Modify the Skill (Optional)
+
+Enhance the coco-financial-fraud skill with additional capabilities:
 
 ```
 Help me enhance the coco-financial-fraud skill to also include:
 1. Velocity checks (rapid successive transactions)
-2. Geographic anomaly detection
-3. Time-based pattern analysis
+2. Geographic anomaly detection  
+3. Time-based pattern analysis (night vs day fraud rates)
+4. Device fingerprint analysis
+```
+
+You can also create entirely new skills using the `skill-development` bundled skill:
+
+```
+$skill-development create a new skill called "fraud-alerting" 
+that monitors for real-time fraud patterns and generates alerts.
 ```
 
 ---
@@ -639,6 +726,23 @@ ALTER USER YOUR_USERNAME REMOVE PROGRAMMATIC ACCESS TOKEN NAME = 'coco_lab_token
 | `PAT expired` | Token expired | Generate new PAT token |
 | `Permission denied` | Insufficient role | Contact admin or use trial account |
 
+### Streamlit in Snowflake (SiS) Issues
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `st.rerun() AttributeError` | st.rerun() not available in SiS | Remove all st.rerun() calls |
+| `x is not a valid parameter` | Chart API differs in SiS | Use `df.set_index()` pattern |
+| `column_config not found` | API not available in SiS | Use basic st.dataframe() |
+| `env_file not permitted` | Wrong snowflake.yml format | Remove env_file, list in artifacts |
+| Data not updating with filter | Filter defined after queries | Move sidebar to top of file |
+
+**IMPORTANT**: Before deploying Streamlit to Snowflake, invoke the project skill:
+```
+$streamlit-in-snowflake
+```
+
+This skill contains critical API limitations and working code patterns for SiS.
+
 ### Common Fixes
 
 ```bash
@@ -690,6 +794,6 @@ Congratulations! You've completed the CoCo-Financial Fraud Analytics Hands-on La
 
 ---
 
-**Lab Version:** 1.0  
-**Last Updated:** February 2025  
+**Lab Version:** 1.2  
+**Last Updated:** February 2026  
 **Author:** CoCo-Financial HOL Team

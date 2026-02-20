@@ -1,6 +1,15 @@
 # CoCo-Financial Fraud Analytics Semantic View
 # This semantic model enables natural language queries against fraud data
 # Compatible with Snowflake Cortex Analyst
+#
+# KEY LEARNINGS FOR SEMANTIC VIEW YAML:
+# 1. base_table must be an object with database/schema/table fields (not a string)
+# 2. Use "facts" not "measures" (measures is deprecated)
+# 3. Do not use "default_aggregation" (deprecated)
+# 4. Primary keys need "unique: true" on the dimension
+# 5. Foreign key columns must be defined as dimensions in child tables
+# 6. Relationships: left_table has FK, right_table has PK (unique dimension)
+# 7. Do not use "join_type" like one_to_many (deprecated)
 
 name: coco_financial_fraud_analytics
 description: |
@@ -8,21 +17,20 @@ description: |
   Enables natural language queries about transactions, fraud patterns, 
   customer risk, and alert management.
 
-# Database configuration
-database: COCO_FINANCIAL
-schema: FRAUD_ANALYTICS
-
-# Logical tables define the business entities
 tables:
   - name: customers
     description: Customer demographics and risk information
-    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.CUSTOMERS
+    base_table:
+      database: COCO_FINANCIAL
+      schema: FRAUD_ANALYTICS
+      table: CUSTOMERS
     
     dimensions:
       - name: customer_id
         description: Unique customer identifier
         expr: CUSTOMER_ID
         data_type: VARCHAR
+        unique: true
         
       - name: customer_name
         description: Full customer name
@@ -72,8 +80,8 @@ tables:
         synonyms:
           - signup date
           - registration date
-          
-    measures:
+
+    facts:
       - name: risk_score
         description: Customer risk score from 0 to 100
         expr: RISK_SCORE
@@ -84,12 +92,21 @@ tables:
 
   - name: accounts
     description: Financial accounts linked to customers
-    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.ACCOUNTS
+    base_table:
+      database: COCO_FINANCIAL
+      schema: FRAUD_ANALYTICS
+      table: ACCOUNTS
     
     dimensions:
       - name: account_id
         description: Unique account identifier
         expr: ACCOUNT_ID
+        data_type: VARCHAR
+        unique: true
+        
+      - name: customer_id
+        description: Customer who owns this account
+        expr: CUSTOMER_ID
         data_type: VARCHAR
         
       - name: account_type
@@ -111,13 +128,12 @@ tables:
         data_type: VARCHAR
         synonyms:
           - account status
-          
-    measures:
+
+    facts:
       - name: balance
         description: Current account balance
         expr: BALANCE
         data_type: NUMBER
-        default_aggregation: SUM
         synonyms:
           - current balance
           - account balance
@@ -126,16 +142,29 @@ tables:
         description: Credit limit for credit accounts
         expr: CREDIT_LIMIT
         data_type: NUMBER
-        default_aggregation: SUM
 
   - name: transactions
     description: Financial transaction records
-    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.TRANSACTIONS
+    base_table:
+      database: COCO_FINANCIAL
+      schema: FRAUD_ANALYTICS
+      table: TRANSACTIONS
     
     dimensions:
       - name: transaction_id
         description: Unique transaction identifier
         expr: TRANSACTION_ID
+        data_type: VARCHAR
+        unique: true
+        
+      - name: account_id
+        description: Account for this transaction
+        expr: ACCOUNT_ID
+        data_type: VARCHAR
+        
+      - name: merchant_id
+        description: Merchant for this transaction
+        expr: MERCHANT_ID
         data_type: VARCHAR
         
       - name: transaction_type
@@ -192,13 +221,12 @@ tables:
           - date
           - timestamp
           - when
-          
-    measures:
+
+    facts:
       - name: amount
         description: Transaction amount in local currency
         expr: AMOUNT
         data_type: NUMBER
-        default_aggregation: SUM
         synonyms:
           - value
           - transaction amount
@@ -206,13 +234,17 @@ tables:
 
   - name: merchants
     description: Merchant information
-    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.MERCHANTS
+    base_table:
+      database: COCO_FINANCIAL
+      schema: FRAUD_ANALYTICS
+      table: MERCHANTS
     
     dimensions:
       - name: merchant_id
         description: Unique merchant identifier
         expr: MERCHANT_ID
         data_type: VARCHAR
+        unique: true
         
       - name: merchant_name
         description: Merchant business name
@@ -242,8 +274,8 @@ tables:
         data_type: BOOLEAN
         synonyms:
           - verified
-          
-    measures:
+
+    facts:
       - name: merchant_risk_rating
         description: Merchant risk rating from 1 to 5
         expr: RISK_RATING
@@ -253,9 +285,23 @@ tables:
 
   - name: fraud_labels
     description: Fraud classification for transactions
-    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.FRAUD_LABELS
+    base_table:
+      database: COCO_FINANCIAL
+      schema: FRAUD_ANALYTICS
+      table: FRAUD_LABELS
     
     dimensions:
+      - name: label_id
+        description: Unique label identifier
+        expr: LABEL_ID
+        data_type: VARCHAR
+        unique: true
+        
+      - name: transaction_id
+        description: Transaction this label applies to
+        expr: TRANSACTION_ID
+        data_type: VARCHAR
+    
       - name: is_fraud
         description: Whether transaction is fraudulent
         expr: IS_FRAUD
@@ -277,8 +323,8 @@ tables:
         data_type: VARCHAR
         synonyms:
           - detection source
-          
-    measures:
+
+    facts:
       - name: confidence_score
         description: Model confidence score from 0 to 1
         expr: CONFIDENCE_SCORE
@@ -289,12 +335,21 @@ tables:
 
   - name: alerts
     description: Fraud alerts and investigations
-    base_table: COCO_FINANCIAL.FRAUD_ANALYTICS.ALERTS
+    base_table:
+      database: COCO_FINANCIAL
+      schema: FRAUD_ANALYTICS
+      table: ALERTS
     
     dimensions:
       - name: alert_id
         description: Unique alert identifier
         expr: ALERT_ID
+        data_type: VARCHAR
+        unique: true
+        
+      - name: transaction_id
+        description: Transaction that triggered alert
+        expr: TRANSACTION_ID
         data_type: VARCHAR
         
       - name: alert_type
@@ -331,8 +386,8 @@ tables:
         description: When alert was resolved
         expr: RESOLVED_AT
         data_type: TIMESTAMP
-        
-    measures:
+
+    facts:
       - name: alert_risk_score
         description: Risk score assigned to alert
         expr: RISK_SCORE
@@ -341,46 +396,43 @@ tables:
           - risk score
 
 # Relationships between tables
+# IMPORTANT: left_table has the foreign key, right_table has the primary key (unique dimension)
+# Do NOT use join_type (deprecated) - just define relationship_columns
 relationships:
-  - name: customer_accounts
-    left_table: customers
-    right_table: accounts
-    join_type: one_to_many
+  - name: accounts_to_customers
+    left_table: accounts
+    right_table: customers
     relationship_columns:
       - left_column: customer_id
-        right_column: CUSTOMER_ID
+        right_column: customer_id
         
-  - name: account_transactions
-    left_table: accounts
-    right_table: transactions
-    join_type: one_to_many
+  - name: transactions_to_accounts
+    left_table: transactions
+    right_table: accounts
     relationship_columns:
       - left_column: account_id
-        right_column: ACCOUNT_ID
+        right_column: account_id
         
-  - name: transaction_merchants
+  - name: transactions_to_merchants
     left_table: transactions
     right_table: merchants
-    join_type: many_to_one
     relationship_columns:
-      - left_column: MERCHANT_ID
+      - left_column: merchant_id
         right_column: merchant_id
         
-  - name: transaction_fraud_labels
-    left_table: transactions
-    right_table: fraud_labels
-    join_type: one_to_one
+  - name: fraud_labels_to_transactions
+    left_table: fraud_labels
+    right_table: transactions
     relationship_columns:
       - left_column: transaction_id
-        right_column: TRANSACTION_ID
+        right_column: transaction_id
         
-  - name: transaction_alerts
-    left_table: transactions
-    right_table: alerts
-    join_type: one_to_many
+  - name: alerts_to_transactions
+    left_table: alerts
+    right_table: transactions
     relationship_columns:
       - left_column: transaction_id
-        right_column: TRANSACTION_ID
+        right_column: transaction_id
 
 # Verified queries - examples that demonstrate correct SQL generation
 verified_queries:
